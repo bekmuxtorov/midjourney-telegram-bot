@@ -12,6 +12,8 @@ from robot.models import Permission, TelegramUser, Request
 
 from datetime import datetime, timezone
 
+# Echo bot
+
 
 @dp.message_handler(text=c_create)
 async def bot_echo(message: types.Message):
@@ -21,25 +23,56 @@ async def bot_echo(message: types.Message):
 
 @dp.message_handler(state=CreateImage.create_image)
 async def bot_echo(message: types.Message, state: FSMContext):
-    user = await TelegramUser.objects.aget(tg_id=message.from_user.id)
-
-    admin_permission_lang = await Permission.objects.aget(name='googletrans')
-    admin_permission_midjourney = await Permission.objects.aget(name='midjourney')
-
+    await CreateImage.create_image.set()
+    tg_id = message.from_user.id
+    user = await TelegramUser.objects.aget(tg_id=tg_id)
+    admin_permission_lang = await Permission.objects.aget(name='admin_permission_lang')
+    admin_permission_midjourney = await Permission.objects.aget(name='admin_permission_midjourney')
+    print('='*20)
+    print(f'User: {user}')
+    print(f'admin_permission_lang: {admin_permission_lang.permission_status}')
+    print(
+        f'admin_permission_midjourney: {admin_permission_midjourney.permission_status}')
+    print('='*20)
     input = message.text.lower().strip()
+    filtered_queryset = await sync_to_async(Request.objects.filter)(user=user)
+    filtered_queryset = list(filtered_queryset)
 
-    request_count = await Request.objects.filter(user=user).acount()
-    if request_count <= 3:
-        await message.answer(
-            text=c_create_image
-        )
-        result = draw_picture(
-            admin_permission_midjourney=admin_permission_midjourney.permission_status,
-            admin_permission_lang=admin_permission_lang.permission_status,
-            input=input
-        )[0]
+    try:
+        delta = datetime.now(timezone.utc) - filtered_queryset[-2].create_add
+        print(delta)
+
+        if delta.seconds > 43200:
+            await message.answer(
+                text=c_create_image
+            )
+            result = draw_picture(
+                admin_permission_midjourney=admin_permission_midjourney.permission_status,
+                admin_permission_lang=admin_permission_lang.permission_status,
+                input=input
+            )[0]
+
+        else:
+            result = None
+            msg = c_block_words
+    except Exception:
+        try:
+            await message.answer(
+                text=c_create_image
+            )
+            result = draw_picture(
+                admin_permission_midjourney=admin_permission_midjourney.permission_status,
+                admin_permission_lang=admin_permission_lang.permission_status,
+                input=input
+            )[0]
+        except Exception:
+            result = None
+            msg = c_error_words
+
+    print(result)
+    if result:
         await bot.send_photo(
-            chat_id=message.from_user.id,
+            chat_id=tg_id,
             photo=result,
             caption=c_example_get_caption(input),
             reply_markup=make_buttons(
@@ -47,14 +80,16 @@ async def bot_echo(message: types.Message, state: FSMContext):
                 row_width=2
             )
         )
+        print(f"User: {user}")
         await state.finish()
-        await sync_to_async(user.set_request_count)()
+
         await Request.objects.acreate(user=user)
 
-    else:
-        result = None
+    elif msg:
         await message.answer(
-            text=c_block_words
+            text=msg
         )
-        await state.finish()
-        return
+
+    await sync_to_async(user.set_request_count)()
+    print('Status: Yaratildi')
+    await state.finish()
