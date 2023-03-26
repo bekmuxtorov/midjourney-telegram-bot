@@ -4,6 +4,10 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from asgiref.sync import sync_to_async
 
+API_NAME = (
+    ('midjourney', 'Midjourney'),
+    ('googletrans', 'Googletrans')
+)
 
 PERMISSION_STATUS = (
     (True, 'Ishga tushirish'),
@@ -21,7 +25,8 @@ class TelegramUser(models.Model):
         max_length=40,
         verbose_name='Username',
         null=True,
-        blank=True
+        blank=True,
+        default='Nomalum'
     )
 
     tg_id = models.CharField(
@@ -82,7 +87,8 @@ class Example(models.Model):
 class Permission(models.Model):
     name = models.CharField(
         max_length=100,
-        verbose_name='Ruhsat nomi'
+        verbose_name='API nomi',
+        choices=API_NAME
     )
 
     permission_status = models.BooleanField(
@@ -141,4 +147,4 @@ class Message(models.Model):
         return self.create_add.strftime("%H:%M:%S, %d/%m/%Y")
 
     def get_username(self):
-        return self.user.get_username
+        return self.user.username
