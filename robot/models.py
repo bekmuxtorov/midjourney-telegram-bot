@@ -9,11 +9,6 @@ API_NAME = (
     ('googletrans', 'Googletrans')
 )
 
-PERMISSION_STATUS = (
-    (True, 'Ishga tushirish'),
-    (False, 'To\'xtatish'),
-)
-
 
 class TelegramUser(models.Model):
     full_name = models.CharField(
@@ -82,23 +77,6 @@ class Example(models.Model):
     class Meta:
         verbose_name = 'Example photo'
         verbose_name_plural = 'Example photos'
-
-
-class Permission(models.Model):
-    name = models.CharField(
-        max_length=100,
-        verbose_name='API nomi',
-        choices=API_NAME
-    )
-
-    permission_status = models.BooleanField(
-        default=True,
-        choices=PERMISSION_STATUS,
-        verbose_name='Xolat'
-    )
-
-    def __str__(self):
-        return self.name
 
 
 class Request(models.Model):

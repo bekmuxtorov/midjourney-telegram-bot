@@ -13,11 +13,6 @@ class ExampleAdmin(admin.ModelAdmin):
     ordering = ['-create_date']
 
 
-class PermissionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'permission_status']
-    list_editable = ('permission_status',)
-
-
 class RequestAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'get_date']
     search_fields = ['user']
@@ -31,6 +26,5 @@ class MessageAdmin(admin.ModelAdmin):
 
 admin.site.register(TelegramUser, TelegramUserAdmin)
 admin.site.register(Example, ExampleAdmin)
-admin.site.register(Permission, PermissionAdmin)
 admin.site.register(Request, RequestAdmin)
 admin.site.register(Message, MessageAdmin)
