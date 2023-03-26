@@ -10,12 +10,12 @@ class TelegramUserAdmin(admin.ModelAdmin):
 
 class ExampleAdmin(admin.ModelAdmin):
     list_display = ['id', 'description', 'create_date']
-    ordering = ['-create_date']
 
 
 class PermissionAdmin(admin.ModelAdmin):
     list_display = ['name', 'permission_status']
     list_editable = ('permission_status',)
+    list_display_links = None
 
 
 class RequestAdmin(admin.ModelAdmin):
