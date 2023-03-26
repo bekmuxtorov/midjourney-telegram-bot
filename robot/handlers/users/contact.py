@@ -10,6 +10,9 @@ from robot.models import Message, TelegramUser
 from core.settings import ADMINS_LIST
 
 
+# Echo bot
+
+
 @dp.message_handler(text=c_contact)
 async def bot_help(message: types.Message):
     await message.answer(
