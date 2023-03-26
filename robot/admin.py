@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TelegramUser, Example, Permission, Request, Message
+from .models import TelegramUser, Example, Request, Message
 
 
 class TelegramUserAdmin(admin.ModelAdmin):
